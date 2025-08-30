@@ -8270,3 +8270,9 @@ C:\Users\John Milton M\SocialConnect\Backend\project\settings.py changed, reload
 Watching for file changes with StatReloader
 C:\Users\John Milton M\SocialConnect\Backend\project\wsgi.py changed, reloading.
 Watching for file changes with StatReloader
+Unauthorized: /api/users/
+Unauthorized: /api/posts/feed/
+Unauthorized: /api/notifications/
+"GET /api/users/ HTTP/1.1" 401 58
+"GET /api/notifications/ HTTP/1.1" 401 58
+"GET /api/posts/feed/ HTTP/1.1" 401 58

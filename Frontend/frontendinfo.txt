@@ -1,0 +1,4 @@
+npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+npx create-next-app@latest socialconnect-frontend --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+python manage.py create_sample_data --users 5 --posts 10
+python -c "import requests; print(requests.get('http://127.0.0.1:8000/api/auth/register/').status_code)"

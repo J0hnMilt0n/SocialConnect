@@ -57,11 +57,20 @@ api.interceptors.response.use(
           // Retry the original request
           originalRequest.headers.Authorization = `Bearer ${access}`;
           return api(originalRequest);
-        } catch (refreshError: any) {
+        } catch (refreshError: unknown) {
           // Only clear tokens if refresh specifically failed (not network error)
-          if (refreshError.response?.status === 401) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
+          if (
+            refreshError &&
+            typeof refreshError === "object" &&
+            "response" in refreshError
+          ) {
+            const axiosError = refreshError as {
+              response?: { status?: number };
+            };
+            if (axiosError.response?.status === 401) {
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+            }
           }
         }
       } else {
@@ -235,7 +244,26 @@ export const postsAPI = {
 export const usersAPI = {
   getProfile: (id: number) => api.get(`/users/${id}/`),
 
-  updateProfile: (data: any) => api.put(`/users/me/update/`, data), // Update current user profile
+  updateProfile: (data: Record<string, unknown>) =>
+    api.put(`/users/me/update/`, data), // Update current user profile
+
+  uploadAvatar: (avatarData: File | string) => {
+    if (avatarData instanceof File) {
+      // File upload
+      const formData = new FormData();
+      formData.append("avatar", avatarData);
+      return api.post("/users/me/avatar/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } else {
+      // Base64 data
+      return api.post("/users/me/avatar/", {
+        avatar_data: avatarData,
+      });
+    }
+  },
 
   search: (query: string) =>
     api.get(`/users/?search=${encodeURIComponent(query)}`),

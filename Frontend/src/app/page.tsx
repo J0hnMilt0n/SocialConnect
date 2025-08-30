@@ -966,7 +966,7 @@ export default function Home() {
       try {
         console.log("🔄 Processing profile picture...");
 
-        // Convert file to base64
+        // Convert file to base64 for local storage
         const reader = new FileReader();
         reader.onload = async (e) => {
           const dataUrl = e.target?.result as string;
@@ -982,95 +982,46 @@ export default function Home() {
           }
           setProfilePictureFile(file);
 
-          // Try to send to backend with proper avatar handling
+          // Try to upload to backend using the dedicated avatar endpoint
           try {
-            console.log("🔄 Syncing avatar with backend...");
+            console.log("🔄 Uploading avatar to backend...");
 
-            // Create a compressed version for backend storage
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const img = new Image();
+            // Try file upload first (best quality)
+            let response;
+            try {
+              response = await usersAPI.uploadAvatar(file);
+              console.log(
+                "✅ Avatar uploaded as file to backend:",
+                response.data
+              );
+            } catch (fileError) {
+              console.warn("File upload failed, trying base64:", fileError);
+              // Fallback to base64 upload
+              response = await usersAPI.uploadAvatar(dataUrl);
+              console.log(
+                "✅ Avatar uploaded as base64 to backend:",
+                response.data
+              );
+            }
 
-            img.onload = async () => {
-              // Resize image to max 400x400 for backend storage
-              const maxSize = 400;
-              let { width, height } = img;
+            // Update user with backend response
+            if (user && response.data.user) {
+              const updatedUser = {
+                ...user,
+                ...response.data.user,
+                avatar_url: dataUrl, // Keep high-quality local version
+              };
+              setUser(updatedUser);
+              storage.saveUser(updatedUser);
+            }
 
-              if (width > height) {
-                if (width > maxSize) {
-                  height = (height * maxSize) / width;
-                  width = maxSize;
-                }
-              } else {
-                if (height > maxSize) {
-                  width = (width * maxSize) / height;
-                  height = maxSize;
-                }
-              }
-
-              canvas.width = width;
-              canvas.height = height;
-              ctx?.drawImage(img, 0, 0, width, height);
-
-              // Convert to compressed JPEG with 0.7 quality
-              const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
-
-              // Check if compressed image is small enough for URLField
-              if (compressedDataUrl.length < 1000000) {
-                // 1MB limit for URL field
-                try {
-                  const response = await usersAPI.updateProfile({
-                    avatar_url: compressedDataUrl,
-                  });
-                  console.log(
-                    "✅ Avatar uploaded successfully to backend:",
-                    response.data
-                  );
-
-                  // Update user with backend response if successful
-                  if (user) {
-                    const updatedUser = {
-                      ...user,
-                      ...response.data,
-                      avatar_url: dataUrl, // Keep high-quality version locally
-                    };
-                    setUser(updatedUser);
-                    storage.saveUser(updatedUser);
-                  }
-
-                  setErrors((prev) => ({
-                    ...prev,
-                    network: "",
-                    profilePic: "",
-                  }));
-                } catch (backendError) {
-                  console.warn("Backend avatar upload failed:", backendError);
-                  setErrors((prev) => ({
-                    ...prev,
-                    network: "ℹ️ Avatar saved locally - backend sync issues",
-                    profilePic: "",
-                  }));
-                }
-              } else {
-                // Image still too large even after compression
-                console.warn(
-                  "Compressed image still too large for backend URLField"
-                );
-                setErrors((prev) => ({
-                  ...prev,
-                  network:
-                    "ℹ️ Avatar saved locally - image too large for backend sync",
-                  profilePic: "",
-                }));
-              }
-            };
-
-            img.src = dataUrl;
+            setErrors((prev) => ({ ...prev, network: "", profilePic: "" }));
+            console.log("✅ Avatar upload completed successfully");
           } catch (error) {
-            console.warn("Avatar processing error:", error);
+            console.warn("Backend avatar upload failed:", error);
             setErrors((prev) => ({
               ...prev,
-              network: "ℹ️ Avatar saved locally - processing error",
+              network: "ℹ️ Avatar saved locally - backend sync failed",
               profilePic: "",
             }));
           } finally {

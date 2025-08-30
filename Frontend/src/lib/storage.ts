@@ -155,7 +155,7 @@ export const storage = {
     if (!storage.isClientSide()) return false;
     try {
       return !!localStorage.getItem(STORAGE_KEYS.POSTS);
-    } catch (error) {
+    } catch {
       return false;
     }
   },
@@ -310,51 +310,6 @@ export const storage = {
     }
     return [];
   },
-
-  // Follow/Unfollow operations
-  // followUser: (currentUserId: number, targetUserId: number) => {
-  //   if (!storage.isClientSide()) return false;
-  //   try {
-  //     // Add to current user's following
-  //     const following = storage.loadFollowing(currentUserId);
-  //     if (!following.includes(targetUserId)) {
-  //       following.push(targetUserId);
-  //       storage.saveFollowing(currentUserId, following);
-  //     }
-
-  //     // Add to target user's followers
-  //     const followers = storage.loadFollowers(targetUserId);
-  //     if (!followers.includes(currentUserId)) {
-  //       followers.push(currentUserId);
-  //       storage.saveFollowers(targetUserId, followers);
-  //     }
-
-  //     return true;
-  //   } catch (error) {
-  //     console.error("Failed to follow user:", error);
-  //     return false;
-  //   }
-  // },
-
-  // unfollowUser: (currentUserId: number, targetUserId: number) => {
-  //   if (!storage.isClientSide()) return false;
-  //   try {
-  //     // Remove from current user's following
-  //     const following = storage.loadFollowing(currentUserId);
-  //     const updatedFollowing = following.filter((id) => id !== targetUserId);
-  //     storage.saveFollowing(currentUserId, updatedFollowing);
-
-  //     // Remove from target user's followers
-  //     const followers = storage.loadFollowers(targetUserId);
-  //     const updatedFollowers = followers.filter((id) => id !== currentUserId);
-  //     storage.saveFollowers(targetUserId, updatedFollowers);
-
-  //     return true;
-  //   } catch (error) {
-  //     console.error("Failed to unfollow user:", error);
-  //     return false;
-  //   }
-  // },
 
   isFollowing: (currentUserId: number, targetUserId: number): boolean => {
     if (!storage.isClientSide()) return false;

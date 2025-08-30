@@ -8241,3 +8241,14 @@ Forbidden: /api/users/
 "GET /api/posts/list/ HTTP/1.1" 200 9470
 "GET /media/posts/7/8dd34db5695741f7b0164ebbdd6006cb.jpg HTTP/1.1" 304 0
 Watching for file changes with StatReloader
+Forbidden: /api/users/
+"GET /api/users/ HTTP/1.1" 403 63
+"GET /api/users/me/ HTTP/1.1" 200 312
+"GET /api/posts/feed/ HTTP/1.1" 200 2428
+"GET /api/notifications/ HTTP/1.1" 200 9597
+"GET /api/notifications/ HTTP/1.1" 200 9597
+"GET /api/posts/list/ HTTP/1.1" 200 9470
+Forbidden: /api/users/
+"GET /api/users/?search=J0hnMilt0n HTTP/1.1" 403 63
+Forbidden: /api/users/
+"GET /api/users/?search=J0hnMilt0n HTTP/1.1" 403 63

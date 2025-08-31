@@ -1248,7 +1248,7 @@ export default function Home() {
       // Fetch user's posts using the same base URL as other API calls
       const token = localStorage.getItem("access_token");
       const response = await fetch(
-        `http://127.0.0.1:8000/api/posts/list/?author=${user.id}`,
+        `https://socialconnect.pythonanywhere.com/api/posts/list/?author=${user.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
